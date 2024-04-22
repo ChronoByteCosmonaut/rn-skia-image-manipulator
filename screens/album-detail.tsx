@@ -34,7 +34,7 @@ const AlBumDetail = ({
           <></>
         ),
     });
-  }, [navigation, selectedImages]);
+  }, [navigation, selectedImages, colors]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

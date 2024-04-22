@@ -28,6 +28,13 @@ import {
   makeImageFromView,
   Text,
   SkiaDomView,
+  Blur,
+  Rect,
+  FractalNoise,
+  RoundedRect,
+  Shadow,
+  Circle,
+  ImageShader,
 } from "@shopify/react-native-skia";
 import { useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
@@ -45,7 +52,7 @@ const Images = ({ navigation, route }: { route; any; navigation: any }) => {
   const ref = useRef<View>(null);
   //   console.log("IMAGE 0:", images?.[0]);
   const headerHeight = useHeaderHeight();
-
+  const flatlistRef = useRef<FlatList>(null);
   const readImages = async (base64: any) => {
     const data = Skia.Data.fromBase64(base64);
     const image = Skia.Image.MakeImageFromEncoded(data);
@@ -93,13 +100,18 @@ const Images = ({ navigation, route }: { route; any; navigation: any }) => {
       ),
     },
     {
-      title: "Displacement",
+      title: "Whirlpool",
       filter: (
         <DisplacementMap channelX="g" channelY="r" scale={10}>
           <Turbulence freqX={0.01} freqY={0.05} octaves={2} seed={8} />
         </DisplacementMap>
       ),
     },
+    {
+      title: "Blur",
+      filter: <Blur blur={1.4} mode="clamp"></Blur>,
+    },
+
     {
       title: "Black & white",
       filter: <ColorMatrix matrix={BLACK_AND_WHITE} />,
@@ -146,7 +158,16 @@ const Images = ({ navigation, route }: { route; any; navigation: any }) => {
           />
         ),
     });
-  }, [navigation]);
+  }, [navigation, colors]);
+
+  const scrollToIndex = (index: number) => {
+    flatlistRef.current.scrollToIndex({
+      animated: true,
+      index: index,
+      viewOffset: 0,
+      viewPosition: 0.5,
+    });
+  };
 
   const makeImageSnapShot = async () => {
     console.log("Selected filter:", selectedFilter);
@@ -192,10 +213,12 @@ const Images = ({ navigation, route }: { route; any; navigation: any }) => {
         </View>
       </View>
       <FlatList
+        ref={flatlistRef}
         horizontal
+        showsHorizontalScrollIndicator={false}
         data={Filters}
         contentContainerStyle={{
-          gap: 12,
+          gap: 16,
           paddingHorizontal: 16,
           height: 128,
         }}
@@ -205,6 +228,7 @@ const Images = ({ navigation, route }: { route; any; navigation: any }) => {
               onPress={async () => {
                 console.log("Pressed:::", index);
                 setSelectedFilter(index);
+                scrollToIndex(index);
                 setTimeout(async () => {
                   await makeImageSnapShot();
                 }, 300);
@@ -246,27 +270,38 @@ const Images = ({ navigation, route }: { route; any; navigation: any }) => {
         }}
       />
 
-      <Canvas
-        style={{
-          flex: 1,
-          width: Dimensions.get("screen").width,
-          height: Dimensions.get("screen").width,
-          borderRadius: 12,
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        {filteredImage && (
+          <Canvas
+            style={{
+              flex: 1,
+              width: Dimensions.get("screen").width / 1.56,
+              height: Dimensions.get("screen").width / 1.56,
+              borderRadius: 12,
 
-          overflow: "hidden",
-        }}
-      >
-        <Image
-          image={filteredImage}
-          fit={"cover"}
-          rect={{
-            x: 0,
-            y: 0,
-            width: Dimensions.get("screen").width,
-            height: Dimensions.get("screen").width,
-          }}
-        />
-      </Canvas>
+              overflow: "hidden",
+            }}
+          >
+            {/* <Circle
+            cx={Dimensions.get("screen").width / 2}
+            cy={Dimensions.get("screen").width / 2}
+            r={Dimensions.get("screen").width / 2.4}
+          > */}
+
+            <Image
+              image={filteredImage}
+              fit={"cover"}
+              rect={{
+                x: 0,
+                y: 0,
+                width: Dimensions.get("screen").width / 1.56,
+                height: Dimensions.get("screen").width / 1.56,
+              }}
+            />
+            {/* </Circle> */}
+          </Canvas>
+        )}
+      </View>
       <View style={{ paddingBottom: insets.bottom }}></View>
     </ScrollView>
   );

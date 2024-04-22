@@ -13,6 +13,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useTheme } from "@react-navigation/native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AlbumCard from "../components/AlbumCard";
 const Home = ({ navigation }: { navigation: any }) => {
   const colors = useTheme().colors;
   const [albums, setAlbums] = useState(null);
@@ -37,7 +38,7 @@ const Home = ({ navigation }: { navigation: any }) => {
     navigation.setOptions({
       headerTintColor: colors.text,
     });
-  }, [navigation]);
+  }, [navigation, colors]);
 
   return (
     <ScrollView
@@ -52,24 +53,31 @@ const Home = ({ navigation }: { navigation: any }) => {
         style={[
           styles.container,
           {
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            gap: 12,
             backgroundColor: colors.background,
             paddingBottom: insets.bottom,
+            paddingHorizontal: 24,
             paddingTop: headerHeight + insets.top + 32,
           },
         ]}
       >
         {albums?.length > 0 ? (
           albums?.map((a: MediaLibrary.Album, i) => {
-            return (
-              <Button
-                key={i}
-                color={colors.text}
-                onPress={() =>
-                  navigation?.navigate("album-detail", { album: a })
-                }
-                title={`${a?.title}`}
-              ></Button>
-            );
+            return <AlbumCard navigation={navigation} key={i} album={a} />;
+            // return (
+            //   <Button
+            //     key={i}
+            //     color={colors.text}
+            //     onPress={() =>
+            //       navigation?.navigate("album-detail", { album: a })
+            //     }
+            //     title={`${a?.title}`}
+            //   ></Button>
+            // );
           })
         ) : (
           <Pressable
