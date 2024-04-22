@@ -25,12 +25,13 @@ import Animated, {
 } from "react-native-reanimated";
 import { FlashList, MasonryFlashList } from "@shopify/flash-list";
 import React from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 export function AlbumEntry({ album, setSelectedImages }) {
   const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
 
   const headerHeight = useHeaderHeight();
-
+  const insets = useSafeAreaInsets();
   const [selectedAssets, setSelectedAssets] = useState<MediaLibrary.Asset[]>(
     []
   );
@@ -108,7 +109,7 @@ export function AlbumEntry({ album, setSelectedImages }) {
           // height: Dimensions.get("screen").height / 3
         }}
       >
-        <MasonryFlashList
+        <FlashList
           automaticallyAdjustContentInsets
           data={assets}
           extraData={selectedAssets}
@@ -119,7 +120,7 @@ export function AlbumEntry({ album, setSelectedImages }) {
           contentContainerStyle={{
             paddingLeft: 1,
             paddingRight: 1,
-            paddingTop: headerHeight,
+            paddingTop: headerHeight + insets.top,
             paddingBottom: Dimensions.get("screen").width / 4.8 + 48,
           }}
           renderItem={({ item, index }) => {
@@ -133,15 +134,17 @@ export function AlbumEntry({ album, setSelectedImages }) {
                   },
                 ]}
               >
-                <Image
-                  recyclingKey={item?.uri}
+                <RNImage
+                  // recyclingKey={item?.uri}
                   source={{ uri: item?.uri }}
-                  priority="high"
+                  // priority="high"
                   style={{
                     marginRight: 1,
                     width: Dimensions.get("screen").width / 3 - 1.5,
                     height: Dimensions.get("screen").width / 3 - 1.5,
                   }}
+                  width={Dimensions.get("screen").width / 3 - 1.5}
+                  height={Dimensions.get("screen").width / 3 - 1.5}
                 />
               </Pressable>
             );

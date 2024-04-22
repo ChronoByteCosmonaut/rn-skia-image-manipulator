@@ -29,7 +29,7 @@ const NavStack = () => {
             headerLargeTitle: true,
             headerBlurEffect: theme === "dark" ? "dark" : "light",
 
-            headerTintColor: colors.text,
+            headerTintColor: theme === "dark" ? colors.text : colors.text,
           }}
         />
         <Stack.Screen
@@ -37,7 +37,8 @@ const NavStack = () => {
           options={{
             headerBlurEffect: theme === "dark" ? "dark" : "light",
             headerTransparent: true,
-            headerTintColor: colors.text,
+            headerLargeTitle: true,
+            headerTintColor: theme === "dark" ? colors.text : colors.text,
             title: "Album",
           }}
           component={AlBumDetail}
@@ -48,7 +49,7 @@ const NavStack = () => {
             title: "Edit images",
             headerBlurEffect: theme === "dark" ? "dark" : "light",
             headerTransparent: true,
-            headerTintColor: colors.text,
+            headerTintColor: theme === "dark" ? colors.text : colors.text,
 
             gestureDirection: "horizontal",
           }}

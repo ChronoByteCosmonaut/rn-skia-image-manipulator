@@ -42,7 +42,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.borndigital.be.imagemanipulator"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -51,6 +52,12 @@
       "eas": {
         "projectId": "aff96535-54e1-44e8-8860-00cfdb0943cb"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/aff96535-54e1-44e8-8860-00cfdb0943cb"
     }
   }
 }

@@ -7,7 +7,7 @@ import {
   Dimensions,
   Pressable,
 } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as MediaLibrary from "expo-media-library";
 import { ScrollView } from "react-native-gesture-handler";
 import { useTheme } from "@react-navigation/native";
@@ -30,6 +30,14 @@ const Home = ({ navigation }: { navigation: any }) => {
 
     setAlbums(fetchedAlbums);
   }
+
+  useEffect(() => {
+    // Use `setOptions` to update the button that we previously specified
+    // Now the button includes an `onPress` handler to update the count
+    navigation.setOptions({
+      headerTintColor: colors.text,
+    });
+  }, [navigation]);
 
   return (
     <ScrollView
@@ -76,7 +84,7 @@ const Home = ({ navigation }: { navigation: any }) => {
               },
             ]}
           >
-            <Text>Get albums</Text>
+            <Text style={{ color: colors.text }}>Get albums</Text>
           </Pressable>
         )}
       </View>

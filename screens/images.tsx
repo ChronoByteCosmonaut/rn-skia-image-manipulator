@@ -1,5 +1,5 @@
 import { View, FlatList, Text as RNText, Pressable } from "react-native";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { NativeStackNavigationHelpers } from "react-native-screens/lib/typescript/native-stack/types";
 
 import * as FileSystem from "expo-file-system";
@@ -25,24 +25,24 @@ import {
   rect,
   rrect,
   useImage,
+  makeImageFromView,
   Text,
+  SkiaDomView,
 } from "@shopify/react-native-skia";
 import { useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { useDerivedValue, useSharedValue } from "react-native-reanimated";
+import { useTheme } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const Images = ({
-  navigation,
-  route,
-}: {
-  route;
-  any;
-  navigation: NativeStackNavigationHelpers;
-}) => {
+const Images = ({ navigation, route }: { route; any; navigation: any }) => {
   const { images } = route.params;
+  const insets = useSafeAreaInsets();
+  const colors = useTheme().colors;
   const [skiaImages, setSkiaImages] = useState<SkImage | null>(null);
+  const [filteredImage, setFilteredImage] = useState<SkImage | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<number>(0);
-
+  const ref = useRef<View>(null);
   //   console.log("IMAGE 0:", images?.[0]);
   const headerHeight = useHeaderHeight();
 
@@ -130,58 +130,91 @@ const Images = ({
     }
   }, [images]);
 
+  useEffect(() => {
+    // Use `setOptions` to update the button that we previously specified
+    // Now the button includes an `onPress` handler to update the count
+    navigation.setOptions({
+      headerTintColor: colors.text,
+      headerRight: () =>
+        filteredImage && (
+          <Button
+            color={colors.text}
+            onPress={() =>
+              navigation?.navigate("filtered", { img: filteredImage })
+            }
+            title="Next"
+          />
+        ),
+    });
+  }, [navigation]);
+
+  const makeImageSnapShot = async () => {
+    console.log("Selected filter:", selectedFilter);
+    const img = await makeImageFromView(ref);
+    setFilteredImage(img);
+  };
+
   return (
-    <View style={{ flex: 1, paddingTop: headerHeight }}>
-      <View
-        style={{
-          flex: 1,
-          paddingHorizontal: 16,
-          paddingVertical: 16,
-          borderRadius: 12,
-        }}
-      >
-        <Canvas
+    <ScrollView style={{ flex: 1 }}>
+      <View style={{ paddingTop: headerHeight }}>
+        <View
+          ref={ref}
           style={{
             flex: 1,
-
+            width: Dimensions.get("screen").width,
+            height: Dimensions.get("screen").width,
+            paddingHorizontal: 16,
+            paddingVertical: 16,
             borderRadius: 12,
-            overflow: "hidden",
           }}
         >
-          <Image
-            image={skiaImages}
-            fit={"cover"}
-            rect={{
-              x: 0,
-              y: 0,
-              width: Dimensions.get("screen").width,
-              height: Dimensions.get("screen").width,
+          <Canvas
+            style={{
+              flex: 1,
+
+              borderRadius: 12,
+              overflow: "hidden",
             }}
           >
-            {Filters[selectedFilter].filter}
-          </Image>
-        </Canvas>
+            <Image
+              image={skiaImages}
+              fit={"cover"}
+              rect={{
+                x: 0,
+                y: 0,
+                width: Dimensions.get("screen").width,
+                height: Dimensions.get("screen").width,
+              }}
+            >
+              {Filters[selectedFilter].filter}
+            </Image>
+          </Canvas>
+        </View>
       </View>
-
       <FlatList
         horizontal
         data={Filters}
         contentContainerStyle={{
           gap: 12,
           paddingHorizontal: 16,
+          height: 128,
         }}
         renderItem={({ item, index }) => {
           return (
             <Pressable
-              onPress={() => {
+              onPress={async () => {
                 console.log("Pressed:::", index);
                 setSelectedFilter(index);
+                setTimeout(async () => {
+                  await makeImageSnapShot();
+                }, 300);
               }}
               style={{ gap: 8 }}
             >
               <RNText
                 style={{
                   fontSize: 12,
+                  color: colors.text,
                   fontWeight: selectedFilter === index ? "700" : "normal",
                 }}
               >
@@ -212,7 +245,30 @@ const Images = ({
           );
         }}
       />
-    </View>
+
+      <Canvas
+        style={{
+          flex: 1,
+          width: Dimensions.get("screen").width,
+          height: Dimensions.get("screen").width,
+          borderRadius: 12,
+
+          overflow: "hidden",
+        }}
+      >
+        <Image
+          image={filteredImage}
+          fit={"cover"}
+          rect={{
+            x: 0,
+            y: 0,
+            width: Dimensions.get("screen").width,
+            height: Dimensions.get("screen").width,
+          }}
+        />
+      </Canvas>
+      <View style={{ paddingBottom: insets.bottom }}></View>
+    </ScrollView>
   );
 };
 
